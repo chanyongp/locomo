@@ -51,7 +51,8 @@ def main():
 
         # check for existing output
         if data['sample_id'] in out_samples:
-            output = out_samples['sample_id']
+            output = out_samples[data['sample_id']]  # 수정된 부분
+            # output = out_samples['sample_id']
         else:
             output = {'sample_id': data['sample_id']}
 
@@ -67,13 +68,24 @@ def main():
 
             date_time = data['conversation']['session_%s_date_time' % i]
             for k, v in facts.items():
-                for fact, dia_id in v:
-                    observations.append(fact)
-                    context_ids.append(dia_id)
-                    date_times.append(date_time)
+                # for debugging
+                for fact_item in v:
+                    if len(fact_item) == 2:
+                        fact, dia_id = fact_item
+                        observations.append(fact)
+                        context_ids.append(dia_id)
+                        date_times.append(date_time)
+                    else:
+                        print(f"Warning: Unexpected fact format {fact_item}")
+
+                # for fact, dia_id in v:
+                #     observations.append(fact)
+                #     context_ids.append(dia_id)
+                #     date_times.append(date_time)
 
             # save intermittently to prevent loss of data
-            out_samples[output['sample_id']] = output.copy()
+            out_samples[data['sample_id']] = output.copy()  # 수정된 부분
+            # out_samples[output['sample_id']] = output.copy()
             with open(args.out_file, 'w') as f:
                 json.dump(list(out_samples.values()), f, indent=2)
 
@@ -95,7 +107,8 @@ def main():
         with open(args.out_file.replace('.json', '_%s.pkl' % data['sample_id']), 'wb') as f:
             pickle.dump(database, f)
 
-        out_samples[output['sample_id']] = output.copy()
+        out_samples[data['sample_id']] = output.copy()  # 수정된 부분
+        # out_samples[output['sample_id']] = output.copy()
     
     with open(args.out_file, 'w') as f:
         json.dump(list(out_samples.values()), f, indent=2)

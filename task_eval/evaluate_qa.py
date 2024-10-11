@@ -41,7 +41,7 @@ def main():
 
     print("******************  Evaluating Model %s ***************" % args.model)
 
-    if 'gpt' in args.model:
+    if 'gpt' in args.model or 'o1' in args.model:
         # set openai API key
         set_openai_key()
 
@@ -83,7 +83,7 @@ def main():
         else:
             out_data['qa'] = data['qa'].copy()
 
-        if 'gpt' in args.model:
+        if 'gpt' in args.model or 'o1' in args.model:
             # get answers for each sample
             answers = get_gpt_answers(data, out_data, prediction_key, args)
         elif 'claude' in args.model:

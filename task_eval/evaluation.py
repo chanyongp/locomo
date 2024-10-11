@@ -196,6 +196,12 @@ def eval_question_answering(qas, eval_key='prediction', metric='f1'):
     answer_lengths = []
     for i, line in enumerate(qas):
         # line = json.loads(line)
+
+        # 수정된 부분
+        # if 'answer' not in line:
+        #     print(f"Warning: 'answer' key is missing in line {i}, skipping this QA")
+        #     continue  # answer 필드가 없는 경우 건너뜁니다.
+
         if type(line[eval_key]) == list:
             answer = line['answer']
         else:

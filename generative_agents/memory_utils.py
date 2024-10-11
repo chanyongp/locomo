@@ -1,6 +1,8 @@
 import os, json
 import time
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import logging
 from datetime import datetime
 from global_methods import run_json_trials
@@ -29,7 +31,7 @@ RETRIEVAL_MODEL = "text-embedding-ada-002" # contriever dragon dpr
 
 def get_embedding(texts, model="text-embedding-ada-002"):
    texts = [text.replace("\n", " ") for text in texts]
-   return np.array([openai.Embedding.create(input = texts, model=model)['data'][i]['embedding'] for i in range(len(texts))])
+   return np.array([client.embeddings.create(input = texts, model=model)['data'][i]['embedding'] for i in range(len(texts))])
 
 
 def get_session_facts(args, agent_a, agent_b, session_idx, return_embeddings=True):
@@ -50,9 +52,9 @@ def get_session_facts(args, agent_a, agent_b, session_idx, return_embeddings=Tru
         if 'blip_caption' in dialog:
             conversation += ' and shared ' + dialog['blip_caption']
         conversation += '\n'
-    
+
     # print(conversation)
-    
+
     input = task['input_prefix'] + conversation
     facts = run_json_trials(query, num_gen=1, num_tokens_request=500, use_16k=False, examples=examples, input=input)
 
@@ -65,17 +67,17 @@ def get_session_facts(args, agent_a, agent_b, session_idx, return_embeddings=Tru
     if session_idx > 1:
         with open(args.emb_file, 'rb') as f:
             embs = pkl.load(f)
-    
+
         embs[agent_a['name']] = np.concatenate([embs[agent_a['name']], agent_a_embeddings], axis=0)
         embs[agent_b['name']] = np.concatenate([embs[agent_b['name']], agent_b_embeddings], axis=0)
     else:
         embs = {}
         embs[agent_a['name']] = agent_a_embeddings
         embs[agent_b['name']] = agent_b_embeddings
-    
+
     with open(args.emb_file, 'wb') as f:
         pkl.dump(embs, f)
-    
+
     return facts
 
 
@@ -134,7 +136,7 @@ def get_recent_context(agent_a, agent_b, sess_id, context_length=2, reflection=F
     speaker_2_facts = []
     for i in range(1, sess_id):
         speaker_2_facts += [agent_a['session_%s_date_time' % i] + ': ' + f for f, _ in agent_a['session_%s_facts' % i][agent_b["name"]]]
-    
+
     if reflection:
         print(speaker_1_facts[-context_length:])
         print(agent_a['session_%s_reflection' % (sess_id-1)]['self'])

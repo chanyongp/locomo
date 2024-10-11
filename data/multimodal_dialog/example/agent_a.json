@@ -1,4 +1,102 @@
 {
   "name": "Angela",
-  "persona_summary": "Angela is a 31 year old woman who works as the manager of a gift shop in Chapel Hill. She curates interesting pieces from local artists and has maintained a beautiful gallery in the form of the gift shop. She also makes her own art sometimes, in the form of oil paintings."
+  "persona_summary": "Angela is a 31 year old woman who works as the manager of a gift shop in Chapel Hill. She curates interesting pieces from local artists and has maintained a beautiful gallery in the form of the gift shop. She also makes her own art sometimes, in the form of oil paintings.",
+  "events_start_date": "04 November, 2022",
+  "graph": [
+    {
+      "sub-event": "Angela's best friend from college visits her in Chapel Hill.",
+      "date": "01 January, 2023",
+      "id": "E4",
+      "caused_by": []
+    },
+    {
+      "sub-event": "Angela feels inspired after spending time with her best friend and creates a new series of oil paintings.",
+      "date": "07 January, 2023",
+      "id": "E5",
+      "caused_by": [
+        "E4"
+      ]
+    },
+    {
+      "sub-event": "Angela's new oil paintings catch the attention of a renowned art critic.",
+      "date": "15 January, 2023",
+      "id": "E6",
+      "caused_by": [
+        "E5"
+      ]
+    },
+    {
+      "sub-event": "The art critic's review leads to increased foot traffic to the gift shop.",
+      "date": "25 January, 2023",
+      "id": "E7",
+      "caused_by": [
+        "E6"
+      ]
+    },
+    {
+      "sub-event": "Angela feels overwhelmed by the increased foot traffic to the gift shop.",
+      "date": "02 February, 2023",
+      "id": "E8",
+      "caused_by": [
+        "E7"
+      ]
+    },
+    {
+      "sub-event": "Angela hires an assistant to help manage the gift shop.",
+      "date": "05 February, 2023",
+      "id": "E9",
+      "caused_by": [
+        "E8"
+      ]
+    },
+    {
+      "sub-event": "Angela's best friend from college suggests a collaboration for an art project.",
+      "date": "10 February, 2023",
+      "id": "E10",
+      "caused_by": [
+        "E4"
+      ]
+    },
+    {
+      "sub-event": "Angela considers expanding the gift shop to include a small caf\u00e9.",
+      "date": "12 February, 2023",
+      "id": "E11",
+      "caused_by": [
+        "E9"
+      ]
+    },
+    {
+      "sub-event": "Angela's assistant suggests organizing an art workshop for local children.",
+      "date": "20 February, 2023",
+      "id": "E12",
+      "caused_by": [
+        "E9"
+      ]
+    },
+    {
+      "sub-event": "Angela decides to host the art workshop at the gift shop.",
+      "date": "23 February, 2023",
+      "id": "E13",
+      "caused_by": [
+        "E12"
+      ]
+    },
+    {
+      "sub-event": "The art workshop receives positive feedback from the children and their parents.",
+      "date": "02 March, 2023",
+      "id": "E14",
+      "caused_by": [
+        "E13"
+      ]
+    },
+    {
+      "sub-event": "Angela's best friend suggests showcasing the children's artwork in the gift shop.",
+      "date": "05 March, 2023",
+      "id": "E15",
+      "caused_by": [
+        "E10",
+        "E14"
+      ]
+    }
+  ]
 }

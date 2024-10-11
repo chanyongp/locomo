@@ -5,7 +5,7 @@ OUT_DIR=./outputs
 EMB_DIR=./outputs
 
 # path to LoCoMo data file
-DATA_FILE_PATH=./data/locomo10.json
+DATA_FILE_PATH=./data/locomo10_copy_reduced_by_category.json
 
 # filenames for different outputs
 QA_OUTPUT_FILE=locomo10_qa.json
@@ -16,7 +16,7 @@ SESS_SUMM_OUTPUT_FILE=locomo10_session_summary.json
 PROMPT_DIR=./prompt_examples
 
 # OpenAI API Key
-export OPENAI_API_KEY=
+export OPENAI_API_KEY="YOUR_OPENAI_API_KEY" 
 
 # Google API Key
 export GOOGLE_API_KEY=

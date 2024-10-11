@@ -13,13 +13,14 @@ import tiktoken
 import numpy as np
 
 MAX_LENGTH={'gpt-4-turbo': 128000,
-            'gpt-4': 4096,
-            'gpt-3.5-turbo-16k': 16000,
-            'gpt-3.5-turbo-12k': 12000,
-            'gpt-3.5-turbo-8k': 8000,
-            'gpt-3.5-turbo-4k': 4000,
-            'gpt-3.5-turbo': 4096,
-            'gpt-4-32k': 320000}
+            'gpt-4o-mini': 128000,
+            'o1-preview': 128000,
+            # 'gpt-3.5-turbo-12k': 12000,
+            # 'gpt-3.5-turbo-8k': 8000,
+            # 'gpt-3.5-turbo-4k': 4000,
+            # 'gpt-3.5-turbo': 4096,
+            # 'gpt-4-32k': 320000
+            }
 PER_QA_TOKEN_BUDGET = 50
 
 QA_PROMPT = """
@@ -53,15 +54,52 @@ CONV_START_PROMPT = "Below is a conversation between two people: {} and {}. The 
 
 def process_ouput(text):
 
-    single_quote_count = text.count("'")
-    double_quote_count = text.count('"')
-    if single_quote_count > double_quote_count:
-        text = text.replace('"', "")
-        text = text.replace("'", '"')
-        # print(text)
-        return json.loads(text)
-    else:
-        return json.loads(text)
+    # single_quote_count = text.count("'")    
+    # double_quote_count = text.count('"')
+    # if single_quote_count > double_quote_count:
+    #     text = text.replace('"', "")
+    #     text = text.replace("'", '"')
+    #     print(f"text : {text}")
+    #     return json.loads(text)
+    # else:
+    #     return json.loads(text)
+
+    # print(f"Text received(before process): {text}")
+    
+    try: 
+        # # 텍스트를 클린업하여 JSON으로 변환할 준비
+        # text = clean_answer_text(text)
+
+        # 작은따옴표와 큰따옴표의 개수를 계산하여 처리
+        single_quote_count = text.count("'")
+        double_quote_count = text.count('"')
+
+        # 작은따옴표가 더 많으면 큰따옴표로 변환
+        if single_quote_count > double_quote_count:
+            text = text.replace('"', "")  # 큰따옴표를 제거
+            text = text.replace("'", '"')  # 작은따옴표를 큰따옴표로 변환
+
+        # 텍스트에서 작은따옴표로 둘러싸인 값들을 찾아서 큰따옴표로 변환
+        lines = text.splitlines()
+        for i in range(len(lines)):
+            # 값이 작은따옴표로 둘러싸인 경우만 처리
+            if ":" in lines[i]:
+                key, value = lines[i].split(":", 1)
+                value = value.strip()
+
+                # 값이 작은따옴표로 감싸져 있으면 큰따옴표로 변경
+                if value.startswith("'") or value.endswith("'"):
+                    value = value.replace("'", '"')
+                    # print(value)
+                    lines[i] = f"{key}: {value}"
+
+        # return json.loads(text)
+        return json.loads('\n'.join(lines))
+    
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Text received(answer.strip()): {text}")  # 디버깅을 위한 출력
+        return None  # 빈 값 반환 또는 다른 처리를 통해 에러 방지
 
 
 def prepare_for_rag(args, data):
@@ -203,6 +241,127 @@ def get_input_context(data, num_question_tokens, encoding, args):
 
     return query_conv
 
+# 원본
+# def get_gpt_answers(in_data, out_data, prediction_key, args):
+
+#     encoding = tiktoken.encoding_for_model('gpt-3.5-turbo-16k' if any([k in args.model for k in ['16k', '12k', '8k', '4k']]) else args.model)
+#     assert len(in_data['qa']) == len(out_data['qa']), (len(in_data['qa']), len(out_data['qa']))
+
+#     # start instruction prompt
+#     speakers_names = list(set([d['speaker'] for d in in_data['conversation']['session_1']]))
+#     start_prompt = CONV_START_PROMPT.format(speakers_names[0], speakers_names[1])
+#     start_tokens = len(encoding.encode(start_prompt))
+
+#     if args.use_rag:
+#         assert args.batch_size == 1, "Batch size need to be 1 for RAG-based evaluation."
+#         context_database, query_vectors = prepare_for_rag(args, in_data)
+#     else:
+#         context_database, query_vectors = None, None
+
+#     for batch_start_idx in tqdm(range(0, len(in_data['qa']), args.batch_size), desc='Generating answers'):
+
+#         questions = []
+#         include_idxs = []
+#         cat_5_idxs = []
+#         cat_5_answers = []
+#         for i in range(batch_start_idx, batch_start_idx + args.batch_size):
+
+#             if i >= len(in_data['qa']):
+#                 break
+
+#             qa = in_data['qa'][i]
+
+#             # answer가 없는 경우를 사전에 처리
+#             if 'answer' not in qa:
+#                 qa['answer'] = "No answer provided"  # 기본값 설정
+
+#             if prediction_key not in out_data['qa'][i] or args.overwrite:
+#                 include_idxs.append(i)
+#             else:
+#                 continue
+
+#             if qa['category'] == 2:
+#                 questions.append(qa['question'] + ' Use DATE of CONVERSATION to answer with an approximate date.')
+#             elif qa['category'] == 5:
+#                 question = qa['question'] + " Select the correct answer: (a) {} (b) {}. "
+#                 if random.random() < 0.5:
+#                     question = question.format('Not mentioned in the conversation', qa['answer'])
+#                     answer = {'a': 'Not mentioned in the conversation', 'b': qa['answer']}
+#                 else:
+#                     question = question.format(qa['answer'], 'Not mentioned in the conversation')
+#                     answer = {'b': 'Not mentioned in the conversation', 'a': qa['answer']}
+
+#                 cat_5_idxs.append(len(questions))
+#                 questions.append(question)
+#                 cat_5_answers.append(answer)
+#             else:
+#                 questions.append(qa['question'])
+
+#         if questions == []:
+#             continue
+
+#         if args.use_rag:
+#             query_conv, context_ids = get_rag_context(context_database, query_vectors[include_idxs][0], args)
+#         else:
+#             question_prompt = QA_PROMPT_BATCH + "\n".join(["%s: %s" % (k, q) for k, q in enumerate(questions)])
+#             num_question_tokens = len(encoding.encode(question_prompt))
+#             query_conv = get_input_context(in_data['conversation'], num_question_tokens + start_tokens, encoding, args)
+#             query_conv = start_prompt + query_conv
+
+#         if 'gpt-4' in args.model:
+#             time.sleep(5)
+
+#         if args.batch_size == 1:
+#             query = query_conv + '\n\n' + QA_PROMPT.format(questions[0]) if len(cat_5_idxs) == 0 else query_conv + '\n\n' + QA_PROMPT_CAT_5.format(questions[0])
+#             answer = run_chatgpt(query, num_gen=1, num_tokens_request=32, 
+#                                  model='chatgpt' if 'gpt-3.5' in args.model else args.model, 
+#                                  use_16k=True if any([k in args.model for k in ['16k', '12k', '8k', '4k']]) else False, 
+#                                  temperature=0, wait_time=2)
+
+#             if len(cat_5_idxs) > 0:
+#                 answer = get_cat_5_answer(answer, cat_5_answers[0])
+
+#             out_data['qa'][include_idxs[0]][prediction_key] = answer.strip()
+#             if args.use_rag:
+#                 out_data['qa'][include_idxs[0]][prediction_key + '_context'] = context_ids
+
+#         else:
+#             query = query_conv + '\n' + question_prompt
+#             trials = 0
+#             while trials < 3:
+#                 try:
+#                     trials += 1
+#                     print("Trial %s/3" % trials)
+#                     answer = run_chatgpt(query, num_gen=1, num_tokens_request=args.batch_size * PER_QA_TOKEN_BUDGET, 
+#                                          model='chatgpt' if 'gpt-3.5' in args.model else args.model, 
+#                                          use_16k=True if any([k in args.model for k in ['16k', '12k', '8k', '4k']]) else False, 
+#                                          temperature=0, wait_time=2)
+#                     answer = answer.replace('\\"', "'").replace('json', '').replace('`', '').strip().replace("\\'", "")
+#                     answers = process_ouput(answer.strip())
+#                     break
+
+#                 except Exception as e:
+#                     print('Error at trial %s/3' % trials, e)
+#                     raise ValueError
+            
+#             for k, idx in enumerate(include_idxs):
+#                 try:
+#                     answers = process_ouput(answer.strip())
+#                     if k in cat_5_idxs:
+#                         predicted_answer = get_cat_5_answer(answers[str(k)], cat_5_answers[cat_5_idxs.index(k)])
+#                         out_data['qa'][idx][prediction_key] = predicted_answer
+#                     else:
+#                         out_data['qa'][idx][prediction_key] = str(answers[str(k)]).replace('(a)', '').replace('(b)', '').strip()
+#                 except Exception as e:
+#                     print(f"Error processing output for index {k}: {e}")
+#                     if k in cat_5_idxs:
+#                         predicted_answer = get_cat_5_answer(answer.strip(), cat_5_answers[cat_5_idxs.index(k)])
+#                         out_data['qa'][idx][prediction_key] = predicted_answer
+#                     else:
+#                         out_data['qa'][idx][prediction_key] = json.loads(answer.strip().replace('(a)', '').replace('(b)', '').split('\n')[k])[0]
+
+#     return out_data
+
 
 def get_gpt_answers(in_data, out_data, prediction_key, args):
 
@@ -247,9 +406,13 @@ def get_gpt_answers(in_data, out_data, prediction_key, args):
                 if random.random() < 0.5:
                     question = question.format('Not mentioned in the conversation', qa['answer'])
                     answer = {'a': 'Not mentioned in the conversation', 'b': qa['answer']}
+                    # question = question.format('Not mentioned in the conversation', qa['adversarial_answer'])
+                    # answer = {'a': 'Not mentioned in the conversation', 'b': qa['adversarial_answer']}
                 else:
                     question = question.format(qa['answer'], 'Not mentioned in the conversation')
                     answer = {'b': 'Not mentioned in the conversation', 'a': qa['answer']}
+                    # question = question.format(qa['adversarial_answer'], 'Not mentioned in the conversation')
+                    # answer = {'b': 'Not mentioned in the conversation', 'a': qa['adversarial_answer']}
 
                 cat_5_idxs.append(len(questions))
                 questions.append(question)
@@ -274,11 +437,11 @@ def get_gpt_answers(in_data, out_data, prediction_key, args):
 
         # print("%s tokens in query" % len(encoding.encode(query_conv)))
 
-        if 'gpt-4' in args.model:
-            time.sleep(5)
+        # if 'gpt-4' in args.model:
+        #     time.sleep(1)
 
-        elif 'gpt-4' in args.model:
-            time.sleep(1)
+        # elif 'gpt-4' in args.model:
+        #     time.sleep(1)
 
         if args.batch_size == 1:
 
@@ -311,6 +474,11 @@ def get_gpt_answers(in_data, out_data, prediction_key, args):
                             use_16k=True if any([k in args.model for k in ['16k', '12k', '8k', '4k']]) else False, 
                             temperature=0, wait_time=2)
                     answer = answer.replace('\\"', "'").replace('json','').replace('`','').strip().replace("\\'", "")
+
+                    # for debugging
+                    print(f"Raw answer: {answer.strip()}")
+                    #
+
                     answers = process_ouput(answer.strip())
                     break
 

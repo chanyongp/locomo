@@ -1,4 +1,92 @@
 {
   "name": "Alisa",
-  "persona_summary": "Alisa is a 27 year old graduate student at UNC Chapel Hill. She is finishing her PhD in Computer Science. She is learning to do digital art and frequently practices new techniques on her iPad."
+  "persona_summary": "Alisa is a 27 year old graduate student at UNC Chapel Hill. She is finishing her PhD in Computer Science. She is learning to do digital art and frequently practices new techniques on her iPad.",
+  "events_start_date": "04 November, 2022",
+  "graph": [
+    {
+      "sub-event": "Alisa successfully defends her PhD thesis at UNC Chapel Hill.",
+      "date": "04 November, 2022",
+      "id": "E1",
+      "caused_by": []
+    },
+    {
+      "sub-event": "Alisa receives a job offer from a top tech company for a Research Scientist position.",
+      "date": "22 November, 2022",
+      "id": "E2",
+      "caused_by": [
+        "E1"
+      ]
+    },
+    {
+      "sub-event": "Alisa starts working on a new digital art project inspired by her research in Computer Science.",
+      "date": "03 December, 2022",
+      "id": "E3",
+      "caused_by": []
+    },
+    {
+      "sub-event": "Alisa meets a fellow graduate student at a digital art workshop and they become close friends.",
+      "date": "10 December, 2022",
+      "id": "E4",
+      "caused_by": [
+        "E3"
+      ]
+    },
+    {
+      "sub-event": "Alisa experiences imposter syndrome as she starts her new job.",
+      "date": "17 January, 2023",
+      "id": "E5",
+      "caused_by": [
+        "E2"
+      ]
+    },
+    {
+      "sub-event": "Alisa seeks advice from her mentor on how to overcome imposter syndrome.",
+      "date": "25 January, 2023",
+      "id": "E6",
+      "caused_by": [
+        "E5"
+      ]
+    },
+    {
+      "sub-event": "Alisa hosts a digital art exhibition showcasing her latest work and invites her new friend from the workshop.",
+      "date": "12 February, 2023",
+      "id": "E7",
+      "caused_by": [
+        "E4",
+        "E6"
+      ]
+    },
+    {
+      "sub-event": "Alisa's digital art project gets featured in a local art magazine.",
+      "date": "05 December, 2022",
+      "id": "E8",
+      "caused_by": [
+        "E3"
+      ]
+    },
+    {
+      "sub-event": "Alisa receives positive feedback on her digital art techniques from her new friend.",
+      "date": "15 December, 2022",
+      "id": "E9",
+      "caused_by": [
+        "E4"
+      ]
+    },
+    {
+      "sub-event": "Alisa attends a digital art masterclass to improve her skills.",
+      "date": "24 January, 2023",
+      "id": "E10",
+      "caused_by": [
+        "E9"
+      ]
+    },
+    {
+      "sub-event": "Alisa starts a new digital art project collaborating with her new friend from the workshop.",
+      "date": "09 February, 2023",
+      "id": "E11",
+      "caused_by": [
+        "E4"
+      ]
+    }
+  ]
 }
